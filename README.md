@@ -1,8 +1,8 @@
 # SerializableRails
 
-Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/serializable_rails`. To experiment with that code, run `bin/console` for an interactive prompt.
-
-TODO: Delete this and the text above, and describe your gem
+A gem to serialize objects using a similar API to active_model_serializers.
+It technically doesn't require that you use Rails, but it does leverage some
+Active Support modules so it's geared towards rails apps.
 
 ## Installation
 
@@ -22,7 +22,36 @@ Or install it yourself as:
 
 ## Usage
 
-TODO: Write usage instructions here
+```ruby
+  class UserSerializer < SerializableRails::Serializer
+    attributes :name, :email, :phone, :skippable
+
+    def phone
+      _object.phone_number || "N/A"
+    end
+
+    def skippable
+      # throw skip if you want to omit this attribute entirely
+      throw(:skip)
+    end
+  end
+
+  class User
+    include SerializableRails::Serializable
+    attr_reader :name, :email, :phone_number
+
+    def initialize(name, email, phone_number = nil)
+      @name = name
+      @email = email
+      @phone_number = phone_number
+    end
+  end
+```
+
+```ruby
+User.new("John", "john@example.com").as_json
+#=> {"name"=>"John", "email"=>"john@example.com", "phone"=>"N/A"}
+```
 
 ## Development
 
